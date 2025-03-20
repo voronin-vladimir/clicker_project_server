@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Users;
+use App\Entity\Player;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,18 +22,17 @@ class RegistrationController extends AbstractController
     public function Register(Request $request): Response
     {
         $payload = json_decode($request->getContent(), true);
-        $userGuid = $payload['guid'];
+        $guid = $payload['guid'];
 
-        $existingUser = $this->em->getRepository(Users::class)->findOneBy(['guid' => $userGuid]);
+        $existingUser = $this->em->getRepository(Player::class)->findOneBy(['guid' => $guid]);
         if ($existingUser) {
             return $this->json(['error' => 'User with this ID already exists'], 409); // Код 409 для конфликтов
         }
 
+        $newPlayer = new Player();
+        $newPlayer->setGuid($guid);
 
-        $newUser = new Users();
-        $newUser->setGuid($userGuid);
-
-        $this->em->persist($newUser);
+        $this->em->persist($newPlayer);
         $this->em->flush();
 
         return $this->json(['message' => 'User registered successfully']);

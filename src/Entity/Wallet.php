@@ -2,45 +2,33 @@
 
 namespace App\Entity;
 
-use App\Repository\UserWalletRepository;
+use App\Repository\WalletRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserWalletRepository::class)]
-class UserWallet
+#[ORM\Entity(repositoryClass: WalletRepository::class)]
+class Wallet
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: "user_wallet")]
+    #[ORM\OneToOne(inversedBy: "wallet")]
     #[ORM\JoinColumn(nullable: false)]
-    private Users $user;
+    private Player $player;
 
     #[ORM\Column]
     private ?int $coinsAmount = 100;
 
-    public function __construct(Users $user)
+    public function __construct(Player $player)
     {
-        $this->user = $user;
+        $this->player = $player;
         $this->coinsAmount = 100;
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUserId(): ?int
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(int $userId): static
-    {
-        $this->userId = $userId;
-
-        return $this;
     }
 
     public function getCoins(): ?int

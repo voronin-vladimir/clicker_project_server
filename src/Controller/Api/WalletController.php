@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Users;
+use App\Entity\Player;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +21,7 @@ class WalletController extends AbstractController
     #[Route('api/wallet/guid/{guid}', name: 'get_wallet_by_guid', methods: ['GET'])]
     public function getWalletByGuid(string $guid, EntityManagerInterface $entityManager): JsonResponse
     {
-        $user = $entityManager->getRepository(Users::class)->findOneBy(['guid' => $guid]);
+        $user = $entityManager->getRepository(Player::class)->findOneBy(['guid' => $guid]);
 
         if (!$user) {
             return $this->json(['error' => 'User not found'], 404);
@@ -42,7 +42,7 @@ class WalletController extends AbstractController
     #[Route('api/wallet/guid/{guid}', name: 'update_wallet_by_guid', methods: ['PUT'])]
     public function updateWalletByGuid(string $guid, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $user = $entityManager->getRepository(Users::class)->findOneBy(['guid' => $guid]);
+        $user = $entityManager->getRepository(Player::class)->findOneBy(['guid' => $guid]);
 
         if (!$user) {
             return $this->json(['error' => 'User not found'], 404);
