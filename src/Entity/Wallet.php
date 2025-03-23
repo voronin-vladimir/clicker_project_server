@@ -18,7 +18,7 @@ class Wallet
     private Player $player;
 
     #[ORM\Column]
-    private ?int $coinsAmount = 100;
+    private ?int $coinsAmount;
 
     public function __construct(Player $player)
     {
@@ -39,6 +39,12 @@ class Wallet
     public function setCoins(int $coinsAmount): static
     {
         $this->coinsAmount = $coinsAmount;
+        return $this;
+    }
+
+    public function spendCoins(int $amount): static
+    {
+        $this->coinsAmount -= $amount;
         return $this;
     }
 }

@@ -11,20 +11,20 @@ class ItemFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $items = [
-            ['Iron Ring', 1],
-            ['Silver Ring', 3],
-            ['Gold Ring', 5],
-            ['Emerald Ring', 7],
-            ['Ruby Ring', 10],
-            ['Sapphire Ring', 15],
-            ['Amethyst Ring', 20],
-            ['Diamond Ring', 30],
-            ['Celestial Ring', 50],
-            ['Titanium Ring', 100],
+            ['Iron Ring', 1, 10],
+            ['Silver Ring', 3, 30],
+            ['Gold Ring', 5, 75],
+            ['Emerald Ring', 7, 150],
+            ['Ruby Ring', 10, 300],
+            ['Sapphire Ring', 15, 600],
+            ['Amethyst Ring', 20, 1200],
+            ['Diamond Ring', 30, 2500],
+            ['Celestial Ring', 50, 5000],
+            ['Titanium Ring', 100, 10000],
         ];
 
-        foreach ($items as [$name, $modifier]) {
-            $item = new Item($name, $modifier);
+        foreach ($items as [$name, $modifier, $cost]) {
+            $item = new Item($name, $modifier, $cost);
             $manager->persist($item);
         }
 

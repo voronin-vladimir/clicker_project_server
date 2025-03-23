@@ -18,10 +18,14 @@ class Item
     #[ORM\Column(type: "integer")]
     private int $modifier;
 
-    public function __construct(string $name, int $modifier)
+    #[ORM\Column(type: "integer")]
+    private int $cost;
+
+    public function __construct(string $name, int $modifier, int $cost)
     {
         $this->name = $name;
         $this->modifier = $modifier;
+        $this->cost = $cost;
     }
 
     public function getId(): int
@@ -37,5 +41,10 @@ class Item
     public function getModifier(): int
     {
         return $this->modifier;
+    }
+
+    public function getCost(): int
+    {
+        return $this->cost;
     }
 }

@@ -21,8 +21,7 @@ class Player
     #[ORM\Column(length: 255)]
     private ?string $guid = null;
 
-    #[ORM\ManyToMany(targetEntity: Item::class)]
-    #[ORM\JoinTable(name: "player_items")]
+    #[ORM\OneToMany(targetEntity: PlayerItem::class, mappedBy: "player", cascade: ["persist", "remove"])]
     private Collection $items;
 
     #[ORM\OneToOne(mappedBy: "player", cascade: ["persist", "remove"])]
@@ -56,9 +55,15 @@ class Player
         return $this->items;
     }
 
-    public function addItem(Item $item): static
+    public function addItem(Item $item, int $quantity = 1): void
     {
-        $this->items->add($item);
-        return $this;
+        foreach ($this->items as $playerItem) {
+            if ($playerItem->getItem() === $item) {
+                $playerItem->addQuantity($quantity);
+                return;
+            }
+        }
+
+        $this->items->add(new PlayerItem($this, $item, $quantity));
     }
 }
