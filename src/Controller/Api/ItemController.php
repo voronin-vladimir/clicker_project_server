@@ -6,6 +6,7 @@ use App\Entity\Player;
 use App\Repository\ItemRepository;
 use App\Repository\PlayerRepository;
 use App\Repository\WalletRepository;
+use App\Services\Items\ItemsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,11 +15,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ItemController extends AbstractController
 {
+    private ItemsService $itemsService;
+
+    public function __construct(ItemsService $itemsService)
+    {
+        $this->$itemsService = $itemsService;
+    }
+
     #[Route('api/list/items', name: 'get_items', methods: ['GET'])]
     public function getAllItems(ItemRepository $itemRepository): JsonResponse
     {
-        $items = $itemRepository->findAll();
-        return $this->json($items);
+        return $this->itemsService->getAllItems();
+//        $items = $itemRepository->findAll();
+//        return $this->json($items);
     }
 
     #[Route('api/player/items/{guid}', name: 'get_player_items', methods: ['GET'])]
@@ -26,13 +35,15 @@ class ItemController extends AbstractController
     {
         $user = $entityManager->getRepository(Player::class)->findOneBy(['guid' => $guid]);
 
-        if (!$user) {
+        if (!$user)
+        {
             return $this->json(['error' => 'User not found'], 404);
         }
 
         $items = $user->getItems();
 
-        if (!$items) {
+        if (!$items)
+        {
             return $this->json(['error' => 'Items not found'], 404);
         }
 
@@ -50,13 +61,15 @@ class ItemController extends AbstractController
 
         $player = $playerRepository->findOneBy(['guid' => $data['player_id']]);
 
-        if (!$player) {
+        if (!$player)
+        {
             return new JsonResponse(['error' => 'Player not found'], 404);
         }
 
         $item = $itemRepository->find($data['item_id']);
 
-        if (!$item) {
+        if (!$item)
+        {
             return new JsonResponse(['error' => 'Item not found'], 404);
         }
 

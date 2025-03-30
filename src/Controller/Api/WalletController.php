@@ -2,7 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Player;
+use App\Services\Player\PlayerException;
+use App\Services\Wallet\WalletService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,61 +14,46 @@ class WalletController extends AbstractController
 {
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    private WalletService $walletService;
+
+    public function __construct(EntityManagerInterface $em, WalletService $walletService)
     {
         $this->em = $em;
+        $this->walletService = $walletService;
     }
 
     #[Route('api/wallet/guid/{guid}', name: 'get_wallet_by_guid', methods: ['GET'])]
-    public function getWalletByGuid(string $guid, EntityManagerInterface $entityManager): JsonResponse
+    public function getWalletByGuid(string $guid): JsonResponse
     {
-        $user = $entityManager->getRepository(Player::class)->findOneBy(['guid' => $guid]);
-
-        if (!$user) {
-            return $this->json(['error' => 'User not found'], 404);
+        try
+        {
+            $wallet = $this->walletService->getWallet($guid);
+            $response = $this->json(['coins' => $wallet->getCoins(),]);
+        }
+        catch (PlayerException $e)
+        {
+            $response = $this->json(['error' => $e->getMessage()], $e->getCode());
         }
 
-        $wallet = $user->getWallet();
-
-        if (!$wallet) {
-            return $this->json(['error' => 'Wallet not found'], 404);
-        }
-
-        return $this->json([
-            'userId' => $user->getId(),
-            'coins' => $wallet->getCoins(),
-        ]);
+        return $response;
     }
 
     #[Route('api/wallet/guid/{guid}', name: 'update_wallet_by_guid', methods: ['PUT'])]
-    public function updateWalletByGuid(string $guid, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function updateWalletByGuid(string $guid, Request $request): JsonResponse
     {
-        $user = $entityManager->getRepository(Player::class)->findOneBy(['guid' => $guid]);
-
-        if (!$user) {
-            return $this->json(['error' => 'User not found'], 404);
-        }
-
-        $wallet = $user->getWallet();
-
-        if (!$wallet) {
-            return $this->json(['error' => 'Wallet not found'], 404);
-        }
-
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['coins']) || !is_numeric($data['coins'])) {
+        if (!isset($data['coins']) || !is_numeric($data['coins']))
+        {
             return $this->json(['error' => 'Invalid coins value'], 400);
         }
 
-        $wallet->setCoins($wallet->getCoins() + (int)$data['coins']);
+        $coins = (int)$data['coins'];
 
-        $entityManager->persist($wallet);
-        $entityManager->flush();
+        $totalCoins = $this->walletService->addCoins($guid, $coins);
 
         return $this->json([
-            'userId' => $user->getId(),
-            'coins' => $wallet->getCoins(),
+            'coins' => $totalCoins,
         ]);
     }
 }

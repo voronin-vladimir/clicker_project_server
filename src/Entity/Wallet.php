@@ -47,4 +47,10 @@ class Wallet
         $this->coinsAmount -= $amount;
         return $this;
     }
+
+    public function addCoins(int $amount): static
+    {
+        $this->coinsAmount += $amount;
+        return $this;
+    }
 }
